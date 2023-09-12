@@ -9,8 +9,27 @@ import productsFromServer from './api/products';
 
 export const App = () => {
   const [selectedUser, setSelectedUser] = useState('all');
+  const [value, setValue] = useState('');
+  const [query, setQuery] = useState('');
+  const [visibleProducts, setVisibleProducts]
+   = useState([...productsFromServer]);
+  const handleSearch = (event) => {
+    const inputValue = event.target.value.toLowerCase();
 
-  const products = productsFromServer.map((product) => {
+    setQuery(inputValue);
+    setValue(event.target.value);
+
+    const filteredProds = products.filter((prod) => {
+      const titleContainsQuery
+       = prod.name.toLowerCase().includes(query);
+
+      return titleContainsQuery;
+    });
+
+    setVisibleProducts(filteredProds);
+  };
+
+  const products = visibleProducts.map((product) => {
     const category = categoriesFromServer.find(categorys => categorys.id
       === product.categoryId);
     const user = usersFromServer.find(users => users.id === category.ownerId);
@@ -80,7 +99,8 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={value}
+                  onChange={handleSearch}
                 />
 
                 <span className="icon is-left">
@@ -93,6 +113,12 @@ export const App = () => {
                     data-cy="ClearButton"
                     type="button"
                     className="delete"
+                    style={{ display: query ? 'block' : 'none' }}
+                    onClick={() => {
+                      setQuery('');
+                      setValue('');
+                      setVisibleProducts([...productsFromServer]);
+                    }}
                   />
                 </span>
               </p>
